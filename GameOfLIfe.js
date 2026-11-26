@@ -24,32 +24,24 @@ copy pasting rules of life from wikipedia.
 3.Any live cell with more than three live neighbours dies, as if by overpopulation.
 4.Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
-
 so <2 neighbours, dies. 
 >3 neighbours, dies.
 2 or 3 neighbours, lives.
 */
-/*let neighboursarray = new Array;
-neighboursarray.push(arr[i-1][j-1]);
-neighboursarray.push(arr[i-1][j]);
-neighboursarray.push(arr[i-1][j+1]);
-neighboursarray.push(arr[i][j-1]);
-neighboursarray.push(arr[i][j+1]);
-neighboursarray.push(arr[i+1][j-1]);
-neighboursarray.push(arr[i+1][j]);
-neighboursarray.push(arr[i+1][j+1]);*/
-// so now it consists of all neighbours, check each element and increment a counter. or......
 
 //TAKE INPUT FROM USER FOR ROWS AND COLS. PLACEHOLDER FOR NOW, CHANGE COMMENT LATER.
 
 let array=make2darray(row1,col1)
+
+let next=make2darray(row1,col1)
 fillrandom(array,row1,col1)
     for (let k=0;k<row1;k++){
         for(let s=0;s<col1;s++){
-            if (AliveNeighbours<2||AliveNeighbours>3) {
-                array[row1][col1]=0
+            if (AliveNeighbours(array,row1,col1)<2||AliveNeighbours(array,row1,col1)>3||array[k][s]==undefined) { //applying the rules and covering boundary condition.
+                next[k][s]=0
             }
-            else array[row1][col1]=1
+            else if (AliveNeighbours(array,row1,col1)==3){next[k][s]=1}
+            else next[k][s]=1
         }
     }
 
