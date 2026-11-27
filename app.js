@@ -1,7 +1,8 @@
 (() => {
-  const MIN_GRID_SIZE = 5;
-  const ROWS = Math.max(MIN_GRID_SIZE, 24);
-  const COLS = Math.max(MIN_GRID_SIZE, 32);
+  const MIN_GRID_SIZE = 10;
+  const MAX_GRID_SIZE = 100;
+  const DEFAULT_ROWS = 24;
+  const DEFAULT_COLS = 32;
   const TICK_MS = 180;
   const CELL_GAP = 3;
   const BOARD_PADDING = 28;
@@ -10,10 +11,15 @@
   const startButton = document.getElementById("start-button");
   const stopButton = document.getElementById("stop-button");
   const resetButton = document.getElementById("reset-button");
+  const applySizeButton = document.getElementById("apply-size-button");
+  const rowsInput = document.getElementById("rows-input");
+  const colsInput = document.getElementById("cols-input");
   const statusText = document.getElementById("status-text");
   const statusDot = document.getElementById("status-dot");
   const generationCount = document.getElementById("generation-count");
 
+  let rows = DEFAULT_ROWS;
+  let cols = DEFAULT_COLS;
   let grid = [];
   let timerId = null;
   let generation = 0;
@@ -25,16 +31,38 @@
     stopButton.disabled = !isRunning;
   }
 
+  function clampSize(value, fallback) {
+    const parsed = Number(value);
+
+    if (!Number.isFinite(parsed)) {
+      return fallback;
+    }
+
+    return Math.min(MAX_GRID_SIZE, Math.max(MIN_GRID_SIZE, Math.floor(parsed)));
+  }
+
+  function readGridSize() {
+    return {
+      rows: clampSize(rowsInput.value, rows),
+      cols: clampSize(colsInput.value, cols)
+    };
+  }
+
+  function syncSizeInputs() {
+    rowsInput.value = String(rows);
+    colsInput.value = String(cols);
+  }
+
   function randomGrid() {
-    const nextGrid = make2darray(ROWS, COLS);
-    fillrandom(nextGrid, ROWS, COLS);
+    const nextGrid = make2darray(rows, cols);
+    fillrandom(nextGrid, rows, cols);
     return nextGrid;
   }
 
   function advanceGrid(sourceGrid) {
     const originalPrompt = window.prompt;
     const originalFillRandom = window.fillrandom;
-    const answers = [String(ROWS), String(COLS)];
+    const answers = [String(rows), String(cols)];
 
     window.prompt = () => answers.shift();
     window.fillrandom = (arr, rows, cols) => {
@@ -56,12 +84,13 @@
   function createCells() {
     const fragment = document.createDocumentFragment();
 
-    board.style.setProperty("--cols", COLS);
-    board.setAttribute("aria-rowcount", String(ROWS));
-    board.setAttribute("aria-colcount", String(COLS));
+    board.style.setProperty("--cols", cols);
+    board.style.setProperty("--rows", rows);
+    board.setAttribute("aria-rowcount", String(rows));
+    board.setAttribute("aria-colcount", String(cols));
 
-    for (let i = 0; i < ROWS; i++) {
-      for (let j = 0; j < COLS; j++) {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
         const cell = document.createElement("button");
         cell.type = "button";
         cell.className = "cell";
@@ -77,9 +106,9 @@
 
   function fitBoard() {
     const wrap = board.parentElement;
-    const availableWidth = wrap.clientWidth - BOARD_PADDING - CELL_GAP * (COLS - 1);
-    const availableHeight = wrap.clientHeight - BOARD_PADDING - CELL_GAP * (ROWS - 1);
-    const cellSize = Math.max(8, Math.floor(Math.min(availableWidth / COLS, availableHeight / ROWS)));
+    const availableWidth = wrap.clientWidth - BOARD_PADDING - CELL_GAP * (cols - 1);
+    const availableHeight = wrap.clientHeight - BOARD_PADDING - CELL_GAP * (rows - 1);
+    const cellSize = Math.max(8, Math.floor(Math.min(availableWidth / cols, availableHeight / rows)));
 
     board.style.setProperty("--cell-size", `${cellSize}px`);
   }
@@ -88,8 +117,8 @@
     const cells = board.children;
     let index = 0;
 
-    for (let i = 0; i < ROWS; i++) {
-      for (let j = 0; j < COLS; j++) {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
         const cell = cells[index++];
         const isAlive = grid[i][j] === 1;
 
@@ -131,6 +160,14 @@
 
   function reset() {
     stop();
+
+    const size = readGridSize();
+    rows = size.rows;
+    cols = size.cols;
+    syncSizeInputs();
+
+    createCells();
+    fitBoard();
     grid = randomGrid();
     generation = 0;
     render();
@@ -151,13 +188,20 @@
     render();
   });
 
+  function handleSizeKeydown(event) {
+    if (event.key === "Enter") {
+      reset();
+    }
+  }
+
   startButton.addEventListener("click", start);
   stopButton.addEventListener("click", stop);
   resetButton.addEventListener("click", reset);
+  applySizeButton.addEventListener("click", reset);
+  rowsInput.addEventListener("keydown", handleSizeKeydown);
+  colsInput.addEventListener("keydown", handleSizeKeydown);
   window.addEventListener("resize", fitBoard);
 
-  createCells();
-  fitBoard();
   reset();
   window.requestAnimationFrame(fitBoard);
 })();

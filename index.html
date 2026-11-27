@@ -21,9 +21,24 @@
       </header>
 
       <div class="toolbar" role="group" aria-label="Simulation controls">
-        <button id="start-button" class="button button--primary" type="button">Start</button>
-        <button id="stop-button" class="button" type="button" disabled>Stop</button>
-        <button id="reset-button" class="button button--secondary" type="button">Reset</button>
+        <div class="button-group">
+          <button id="start-button" class="button button--primary" type="button">Start</button>
+          <button id="stop-button" class="button" type="button" disabled>Stop</button>
+          <button id="reset-button" class="button button--secondary" type="button">Reset</button>
+        </div>
+
+        <div class="size-controls" role="group" aria-label="Grid size">
+          <label class="field">
+            <span>Rows</span>
+            <input id="rows-input" type="number" min="10" max="100" step="1" value="24" inputmode="numeric" />
+          </label>
+          <label class="field">
+            <span>Columns</span>
+            <input id="cols-input" type="number" min="10" max="100" step="1" value="32" inputmode="numeric" />
+          </label>
+          <button id="apply-size-button" class="button" type="button">Apply size</button>
+        </div>
+
         <p class="generation">Generation <strong id="generation-count">0</strong></p>
       </div>
 
@@ -59,6 +74,7 @@
 
         <p class="info__note">
           Start advances the simulation, Stop pauses it, and Reset creates a fresh random grid.
+          Grid size can be set from 10×10 up to 100×100.
         </p>
       </div>
     </aside>
