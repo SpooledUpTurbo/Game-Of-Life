@@ -1,4 +1,4 @@
-//hello there
+//Namaskara guruve
 function make2darray(rows, cols) {
     let arr1 = new Array(rows);
     for (let i=0;i<rows;i++){
